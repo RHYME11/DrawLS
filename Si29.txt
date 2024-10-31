@@ -1,0 +1,19 @@
+# ============= Test 1 ============= #
+# Only one isotope
+# Simplest information, only containing excitation energy and Jpi
+# Ex is in "keV"
+# !!! No space for individual informtaion, eg, "291 fs" won't work
+# ================================= #
+
+
+Isotope: Si
+Z = 14
+N = 15
+
+Ex	  Jpi
+0	    1/2+
+1273	3/2+
+2028	5/2+
+2426	3/2+
+3067	5/2+
+3623	7/2-
