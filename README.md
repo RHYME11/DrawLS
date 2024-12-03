@@ -8,11 +8,12 @@ GOAL: to create different types of level schemes based on input .txt files.
 
 ## Grace File Generator
 All generator codes are written in python and saved in **build/agr_generator**. 
+States and associated excitation energies are required in alll formats.
 
 ### Generator Type
-|   Generator   | Empty Fomate | # of Isotopes | Frame    | Axis     | States Lines | Energy   | Jpi     | Half-Life | Gamma Lines | Energy   | Br       | Notes | 
-|---------------|--------------|---------------|----------|----------|--------------|----------|---------|-----------|-------------|----------|----------|-------|
-| generator1.py | empty1.agr   | 1             | &#10007; | &#10007; | &#10004;     | Left     |&#10007; | &#10007;  | &#10007;    | &#10007; | &#10004; |       |
+|   Generator   | Agr Format | # of Isotopes | Frame    | Axis     | Gamma Lines | Energy   | Br       | Notes | 
+|---------------|------------|---------------|----------|----------|-------------|----------|----------|-------|
+| generator1.py | empty1.agr | 1             | &#10007; | &#10007; | &#10007;    | &#10007; | &#10004; |       |
 
 ### Empty Format:
 | Format Name | X-axis Range | Notes         |
