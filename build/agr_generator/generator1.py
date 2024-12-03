@@ -15,7 +15,7 @@ while True:
     print("File does not exist. Please try again.")
 
 isotope, Z, N = None, None, None
-states = [[], []]  # 2D array for storing Ex and Jpi values
+states = [[], []]  # 2D array for storing Ex and Jpi values [[Ex], [Jpi]]
 
 with open(input_file, 'r') as file:
   read_states = False                                                                                                                                                    
@@ -74,9 +74,9 @@ agr_content.append("\n")
 current_timestamp = datetime.now().strftime("%a %b %d %H:%M:%S %Y")
 
 # 3.1.2.Adjust Y-axis range based on the highest Ex in the input file
-highest = max(states[0]) # highest Ex
-ylower = -0.1 * highest
-yupper = 1.1 * highest
+ex_highest = max(states[0]) # highest Ex
+axis_y1 = -0.1 * ex_highest
+axis_y2 = 1.1 * ex_highest
 
 # Update .agr
 # "@timestamp def" in line 57
@@ -86,20 +86,20 @@ for i, line in enumerate(agr_content):
     agr_content[i] = f'@timestamp def "{current_timestamp}"\n'
   if line.startswith("@    world"):
     parts = line.split(", ")
-    xlower = float(parts[0].split()[-1])  # Extract original xlower = -1 (default)
-    xupper = float(parts[2])              # Extract original xupper = 2 (default)
-    agr_content[i] = f"@    world {xlower}, {ylower}, {xupper}, {yupper}\n"
+    axis_x1 = float(parts[0].split()[-1])  # Extract original xlower = -1 (default)
+    axis_x2 = float(parts[2])              # Extract original xupper = 2 (default)
+    agr_content[i] = f"@    world {axis_x1}, {axis_y1}, {axis_x2}, {axis_y2}\n"
     break
 
 # Step3.2: Isotope Strings
 # Calculate string Xposition based on formate x-axis range
-iso_stringx = (xlower + xupper) / 2 
+iso_string_posx = (axis_x1 + axis_x2) / 2 
 agr_content.append("# ==== Isotope Strings ==== #\n")
 agr_content.append("@with string\n")
 agr_content.append("@    string on\n")
 agr_content.append("@    string loctype world\n") # Local world (the other option is viewport)
 agr_content.append("@    string g0\n") # g0 is the current graph. (grace allow multiple graphs in the same canvas)
-agr_content.append(f"@    string {iso_stringx}, {ylower*0.6}\n") # string position. x = center of the graph, y = y-axis_lower * 0.6
+agr_content.append(f"@    string {iso_string_posx}, {axis_y1*0.6}\n") # string position. x = center of the graph, y = y-axis_lower * 0.6
 agr_content.append("@    string color 1\n") # color 1 = black
 agr_content.append("@    string rot 0\n") # rot = rotation (unit: deg)
 agr_content.append("@    string font 2\n") # font 2 = "Times-Bold"
@@ -109,10 +109,11 @@ agr_content.append(f'@    string def "\\S\\v{{-.2}}{Z+N}\\N\\h{{-.8}}\\s\\v{{.2}
 agr_content.append("\n")
 
 
-# Step3.3: States lines
-# Calculate lines Xposition based on format x-axis range
-linex1 = xlower + 0.5
-linex2 = xupper - 0.5
+# Step3.3: States lines + Step 3.4: State Ex strings in the same loop
+# Lines Xposition based on format x-axis range
+# Fixed Ex string position (default: left at states line )
+linex1 = axis_x1 + 0.5 
+linex2 = axis_x2 - 0.5 
 agr_content.append("# ==== States Lines ==== #\n")
 for ex in states[0]:
   agr_content.append(f"# State Ex = {int(ex)} keV\n")
@@ -131,9 +132,8 @@ for ex in states[0]:
   agr_content.append("@line def\n")
   agr_content.append("\n")
 
-
-# Step 3.4: State Ex Strings
-# Fixed Ex string position (default: left at states line )
+# Step 3.4: State Ex strings
+pos_ex = linex1 - 0.02 # Fixed ex string position at left
 
 
 
