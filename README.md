@@ -6,9 +6,19 @@ GOAL: to create different types of level schemes based on input .txt files.
 - `os` (part of Python's standard library, no need to install)
 - `datetime` (part of Python's standard library, no need to install)
 
-## Grace File Generator (build/agr_generator)
+## Grace File Generator
+All generator codes are written in python and saved in **build/agr_generator**. 
 
-### Only States, No $\gamma$-ray (build/agr_generator/states_only)
-Generate multiple empty.agr files for different formats:
-1. generator1.py: No frame, no axis, only states with related information, and isotope name (currently working on only one isotope case)
+### Generator Type
+|   Generator   | Empty Fomate | # of Isotopes | Frame    | Axis     | States Lines | Energy   | Jpi     | Half-Life | Gamma Lines | Energy   | Br       | Notes | 
+|---------------|--------------|---------------|----------|----------|--------------|----------|---------|-----------|-------------|----------|----------|-------|
+| generator1.py | empty1.agr   | 1             | &#10007; | &#10007; | &#10004;     | Left     |&#10007; | &#10007;  | &#10007;    | &#10007; | &#10004; |       |
+
+### Empty Format:
+| Format Name | X-axis Range | Notes         |
+|-------------|--------------|---------------|
+| empty1.agr  | [-1,2]       | One isotope   |
+| empty2.agr  |              | Data 4   |
+| emoty3.agr  |              | Data 6   |
+
 

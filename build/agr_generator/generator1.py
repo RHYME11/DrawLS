@@ -18,32 +18,35 @@ isotope, Z, N = None, None, None
 states = [[], []]  # 2D array for storing Ex and Jpi values
 
 with open(input_file, 'r') as file:
-    read_states = False
-    for line in file:
-        # Ignore lines starting with "#"
-        if line.startswith("#"):
-            continue
-        
-        # Extract isotope, Z, and N
-        if line.startswith("Isotope:"):
-            isotope = line.split(":")[1].strip()
-        elif line.startswith("Z ="):
-            Z = int(line.split("=")[1].strip())
-        elif line.startswith("N ="):
-            N = int(line.split("=")[1].strip())
-        
-        # Start reading states after encountering "Ex  Jpi"
-        elif line.strip() == "Ex	  Jpi":
-            read_states = True
-            continue
-        
-        # Read the 5 lines of Ex and Jpi values into `states`
-        if read_states:
-            parts = line.split()
-            if len(parts) == 2:
-                states[0].append(float(parts[0]))  # Ex values
-                states[1].append(parts[1])         # Jpi values
-
+  read_states = False                                                                                                                                                    
+  for line in file:
+    # Ignore lines starting with "#"
+    if line.startswith("#"):
+      continue
+    
+    # Extract isotope, Z, and N
+    if line.startswith("Isotope:"):
+      isotope = line.split(":")[1].strip()
+    elif line.startswith("Z ="):
+      Z = int(line.split("=")[1].strip())
+    elif line.startswith("N ="):
+      N = int(line.split("=")[1].strip())
+    
+    # Start reading states after encountering "Ex  Jpi"
+    elif line.strip() == "Ex    Jpi":
+      read_states = True
+      continue
+    
+    # End reading states with "end"
+    elif line.strip() == "end":
+      read_states = False;
+    
+    # Read the 5 lines of Ex and Jpi values into `states`
+    if read_states: 
+      parts = line.split()
+      if len(parts) == 2:
+        states[0].append(float(parts[0]))  # Ex values
+        states[1].append(parts[1])         # Jpi values
 
 # ================================================================= #    
 # Step2: Choose the format and extract the empty format
@@ -54,7 +57,7 @@ while True:
   if os.path.exists(format_file):
     break
   else:
-    print("File does not exist. Please try again.")
+    print("Format file does not exist. Please try again.")
 
 with open(format_file, 'r') as file:
   agr_content = file.readlines()
@@ -84,7 +87,7 @@ for i, line in enumerate(agr_content):
   if line.startswith("@    world"):
     parts = line.split(", ")
     xlower = float(parts[0].split()[-1])  # Extract original xlower = -1 (default)
-    xupper = float(parts[2])              # Extract original xupper = 3 (default)
+    xupper = float(parts[2])              # Extract original xupper = 2 (default)
     agr_content[i] = f"@    world {xlower}, {ylower}, {xupper}, {yupper}\n"
     break
 
@@ -128,7 +131,14 @@ for ex in states[0]:
   agr_content.append("@line def\n")
   agr_content.append("\n")
 
-# ================================================================= #    
+
+# Step 3.4: State Ex Strings
+# Fixed Ex string position (default: left at states line )
+
+
+
+
+# =========================== Output file ================================== #    
 # Write the modified content to a new output file
 base_filename = os.path.splitext(os.path.basename(input_file))[0]
 output_file = f"{base_filename}_output.agr"
