@@ -174,7 +174,7 @@ se_linex1 = linex1 - 0.2
 se_linex2 = linex2 + 0.2
 pos_se = se_linex1 - 0.02
 for idx in range(len(se[1])):
-  se_val = se[1][idx]
+  se_val = int(se[1][idx])
   if se_val != 0:
     agr_content.append(f"# SE Lines = {int(se_val)} keV\n")
     agr_content.append("@with line\n")
@@ -196,13 +196,13 @@ for idx in range(len(se[1])):
     agr_content.append("@    string on\n")
     agr_content.append("@    string loctype world\n") # Local world (the other option is viewport)
     agr_content.append("@    string g0\n") # g0 is the current graph. (grace allow multiple graphs in the same canvas)
-    agr_content.append(f"@    string {pos_se}, {se_val}\n") # left at ex lines and same height(y-axis)
+    agr_content.append(f"@    string {pos_se}, {se_val}\n") # left at se lines and same height(y-axis)
     agr_content.append("@    string color 1\n") # color 1 = black
     agr_content.append("@    string rot 0\n") # rot = rotation (unit: deg)
     agr_content.append("@    string font 0\n") # font 0 = "Times-Romance"
     agr_content.append("@    string just 13\n") # just 13 = center left (row3,col3 in grace)
     agr_content.append("@    string char size 1.25\n") # char size 1.25 = 125 (in grace)
-    agr_content.append(f'@    string def "{se[0][idx]} = {filling_str} keV"\n')
+    agr_content.append(f'@    string def "{se[0][idx]} = {se_val} keV"\n')
     break 
 
 
@@ -245,4 +245,3 @@ with open(output_file, 'w') as file:
 #print(f"Z: {Z}")
 #print(f"N: {N}")
 #print("states:", states)
-print("SE:",se)
