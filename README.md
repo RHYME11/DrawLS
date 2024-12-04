@@ -11,14 +11,15 @@ All generator codes are written in python and saved in **build/agr_generator**.
 States and associated excitation energies are required in alll formats.
 
 ### Generator Type
-|   Generator   | Agr Format | # of Isotopes | Frame    | Axis     | Gamma    | E$$_{\gamma}$$| Br       | Notes | 
-|---------------|------------|---------------|----------|----------|----------|---------------|----------|-------|
-| generator1.py | empty1.agr | 1             | &#10007; | &#10007; | &#10007; | &#10007;      | &#10007; |       |
+|   Generator   | Agr Format | # of Isotopes | Frame    | Axis     | Gamma    | E<sub>&gamma;</sub>| Br       | Notes | 
+|---------------|------------|---------------|----------|----------|----------|--------------------|----------|-------|
+| generator1.py | empty1.agr | 1             | &#10007; | &#10007; | &#10007; | &#10007;           | &#10007; | ![image](https://github.com/user-attachments/assets/9ced337a-b115-4a7c-a26b-5e729ddeda13) |
+
 
 ### Empty Format:
 | Format Name | X-axis Range | Notes         |
 |-------------|--------------|---------------|
-| empty1.agr  | [-1,2]       | One isotope   |
+| empty1.agr  | [-0.5,1.5]   | One isotope   |
 | empty2.agr  |              | Data 4   |
 | emoty3.agr  |              | Data 6   |
 
