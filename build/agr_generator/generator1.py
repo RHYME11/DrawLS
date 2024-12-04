@@ -7,7 +7,23 @@ import os
 from datetime import datetime
 
 # ================================================================= #    
-# Step1: Open and read the file
+# Step1: Choose the format and extract the empty format
+# TODO: Formats display
+while True:
+  format_type = input("Enter the formate # (default is 1): ")
+  format_file = f"formats/agr_format/empty{format_type}.agr"
+  if os.path.exists(format_file):
+    break
+  else:
+    print("Format file does not exist. Please try again.")
+
+with open(format_file, 'r') as file:
+  agr_content = file.readlines()
+
+agr_content.append("\n")
+
+# ================================================================= #    
+# Step2: Open and read the file
 while True:
   input_file = input("Enter the filename (with path if needed): ")
   if os.path.exists(input_file):
@@ -59,21 +75,6 @@ with open(input_file, 'r') as file:
       se[1].append(parts[1].strip())
        
 
-# ================================================================= #    
-# Step2: Choose the format and extract the empty format
-# TODO: Formats display
-while True:
-  format_type = input("Enter the formate # (default is 1): ")
-  format_file = f"formats/agr_format/empty{format_type}.agr"
-  if os.path.exists(format_file):
-    break
-  else:
-    print("Format file does not exist. Please try again.")
-
-with open(format_file, 'r') as file:
-  agr_content = file.readlines()
-
-agr_content.append("\n")
 
 # ================================================================= #    
 # Step3: Based on input file information
@@ -97,8 +98,8 @@ for i, line in enumerate(agr_content):
     agr_content[i] = f'@timestamp def "{current_timestamp}"\n'
   if line.startswith("@    world"):
     parts = line.split(", ")
-    axis_x1 = float(parts[0].split()[-1])  # Extract original xlower = -1 (default)
-    axis_x2 = float(parts[2])              # Extract original xupper = 2 (default)
+    axis_x1 = float(parts[0].split()[-1])  # Extract original xlower = -0.5 (default)
+    axis_x2 = float(parts[2])              # Extract original xupper = 1.5 (default)
     agr_content[i] = f"@    world {axis_x1}, {axis_y1}, {axis_x2}, {axis_y2}\n"
     break
 
@@ -107,7 +108,7 @@ for i, line in enumerate(agr_content):
 # Fixed Ex    string position (default: right at states line )
 # Fixed Jpi   string position (default: left at states line )
 # t1/2 will be in Jpi string
-linex1 = axis_x1 + 1.0 
+linex1 = axis_x1 + 0.5 
 linex2 = axis_x2 - 0.5 
 pos_ex = linex2 + 0.02
 pos_jpi= linex1 - 0.02
@@ -170,8 +171,8 @@ for idx, ex in enumerate(states[0]):
     agr_content.append(f'@    string def "{filling_str}"\n')
     
 # Step 3.5: Separation Energies
-se_linex1 = linex1 - 0.2
-se_linex2 = linex2 + 0.2
+se_linex1 = linex1 - 0.1
+se_linex2 = linex2 + 0.1
 pos_se = se_linex1 - 0.02
 for idx in range(len(se[1])):
   se_val = int(se[1][idx])

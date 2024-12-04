@@ -19,7 +19,7 @@ States and associated excitation energies are required in alll formats.
 ### Empty Format:
 | Format Name | X-axis Range | Notes         |
 |-------------|--------------|---------------|
-| empty1.agr  | [-0.5,1.5]   | One isotope   |
+| empty1.agr  | [-0.5,1.0]   | One isotope   |
 | empty2.agr  |              | Data 4   |
 | emoty3.agr  |              | Data 6   |
 
