@@ -2,16 +2,22 @@
 # ==== Adjust the axis range based on # of isotopes
 
 
-def gframe(format_type):
-  match format_type:
+def gframe(Nisotopes):
+  agr_content = []
+  # Change the x-axis range with # of isotopes
+  # TODO: change the frame size with # of isotopes (if needed)
+  axis_y1, axis_y2 = -400, 2000
+  axis_x1 = axis_x2 = float("inf")
+  match Nisotopes:
     case 1: # One istope
       axis_x1 = -0.5
       axis_x2 = 1.0
-  
-  agr_content = []
+    case _: # default any other values, return empty array
+      return agr_content 
+ 
   agr_content.append("# ==== Initial Frame ==== #")
   agr_content.append("@with g0                                         \n")
-  agr_content.append("@    world -0.5, 0, 1, 2000                      \n")
+  agr_content.append(f"@    world {axis_x1}, {axis_y1}, {axis_x2}, {axis_y2} \n")
   agr_content.append("@    stack world 0, 0, 0, 0                      \n")
   agr_content.append("@    znorm 1                                     \n")  
   agr_content.append("@    view 0.050000, 0.050000, 1.244118, 0.950000 \n")
@@ -127,7 +133,7 @@ def gframe(format_type):
   agr_content.append("@    yaxis  ticklabel char size 1.000000         \n")                                                   
   agr_content.append("@    yaxis  ticklabel font 0                     \n")                               
   agr_content.append("@    yaxis  ticklabel color 1                    \n")                                   
-  agr_content.appen("@    yaxis  tick place both                      \n")                                     
+  agr_content.append("@    yaxis  tick place both                      \n")                                     
   agr_content.append("@    yaxis  tick spec type none                  \n")                                     
   agr_content.append("@    altxaxis  off                               \n")                                   
   agr_content.append("@    altyaxis  off                               \n")                           

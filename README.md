@@ -7,8 +7,8 @@ GOAL: to create different types of level schemes based on input .txt files.
 - `datetime` (part of Python's standard library, no need to install)
 
 ## Grace File Generator
-All generator codes are written in python and saved in **build/agr_generator**. 
-States and associated excitation energies are required in alll formats.
+All generator codes are written in python and saved in <u>build/agr_generator</u>. 
+**States and associated excitation energies are required in alll formats.**
 
 ### Generator Type
 |   Generator   | Agr Format | # of Isotopes | Frame    | Axis     | Gamma    | E<sub>&gamma;</sub>| Br       | Notes | 
@@ -22,5 +22,8 @@ States and associated excitation energies are required in alll formats.
 | empty1.agr  | [-0.5,1.0]   | One isotope   |
 | empty2.agr  |              | Data 4   |
 | emoty3.agr  |              | Data 6   |
+
+
+### Python Codes (<u>build/agr_generator</u>)
 
 
