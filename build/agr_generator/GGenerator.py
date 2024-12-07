@@ -1,7 +1,14 @@
 
-
-
-
+# =========== Global variables =============#
+glb_state_color = 1.0 # color = 1.0 ==> black
+glb_state_style = 1.0 # style = 1.0 ==> solid line
+glb_state_width = 2.0 # width = 2.0
+glb_txt_color   = 1.0 # color = 1.0 ==> black
+glb_txt_rot     = 0.0 # rot = 0.0 deg
+glb_txt_font    = 0.0 # font - 0.0 ==> Time-Romance
+glb_cr_just     = 12.0# just = 12.0 ==> center right (row1,col3 in grace)
+glb_txt_size    = 1.25 # char size = 0.9 ==> 90 (in grace)
+glb_cl_just     = 13.0# just = 13.0 ==> center left (row3,col3 in grace)
 
 def generator1(agr_content, niso, isotope, states, se):
   # 1.Adjust Y-axis range based on the highest Ex in the input file
@@ -27,10 +34,14 @@ def generator1(agr_content, niso, isotope, states, se):
 # Fixed Ex    string position (default: right at states line )
 # Fixed Jpi   string position (default: left at states line )
 # t1/2 will be in Jpi string
-  linex1 = axis_x1 + 0.5*(niso+1) 
-  linex2 = axis_x2 - 0.5*(niso+1) 
-  pos_ex = linex2 + 0.02
-  pos_jpi= linex1 - 0.02  
+  linex1 = axis_x1 + 0.5 + 1.0*niso  # the first line offset from the x-axis is 0.5, space between beginning of lines = 1.0
+  linex2 = linex1 + 0.5            # line length = 0.5
+  if niso == 0:
+    pos_ex = linex2 + 0.02
+    pos_jpi= linex1 - 0.02  
+  else:
+    pos_jpi= linex2 + 0.02
+    pos_ex= linex1 - 0.02  
 
   for idx, ex in enumerate(states[0]):
     # 2.1 States Ex Lines
@@ -40,9 +51,9 @@ def generator1(agr_content, niso, isotope, states, se):
     agr_content.append("@    line loctype world\n")  # Local world (the other option is viewport)
     agr_content.append("@    line g0\n") # g0 is the current graph. (grace allow multiple graphs in the same canvas)
     agr_content.append(f"@    line {linex1}, {ex}, {linex2}, {ex}\n") # line location [x1, y1, x2, y2]
-    agr_content.append("@    line linewidth 2.0\n") # linewdith = 2.0 (default)
-    agr_content.append("@    line linestyle 1\n") # linestyle 1= solid line 
-    agr_content.append("@    line color 1\n") # color 1 = black
+    agr_content.append(f"@    line linewidth {glb_state_width}\n") # linewdith = 2.0 (default)
+    agr_content.append(f"@    line linestyle {glb_state_style}\n") # linestyle 1= solid line 
+    agr_content.append(f"@    line color {glb_state_color}\n") # color 1 = black
     agr_content.append("@    line arrow 0\n") # no arrow
     agr_content.append("@    line arrow type 0\n") # no arrow
     agr_content.append("@    line arrow length 1.000000\n") # no arrow
@@ -56,11 +67,14 @@ def generator1(agr_content, niso, isotope, states, se):
     agr_content.append("@    string loctype world\n") # Local world (the other option is viewport)
     agr_content.append("@    string g0\n") # g0 is the current graph. (grace allow multiple graphs in the same canvas)
     agr_content.append(f"@    string {pos_ex}, {ex}\n") # left at ex lines and same height(y-axis)
-    agr_content.append("@    string color 1\n") # color 1 = black
-    agr_content.append("@    string rot 0\n") # rot = rotation (unit: deg)
-    agr_content.append("@    string font 0\n") # font 0 = "Times-Romance"
-    agr_content.append("@    string just 12\n") # just 12 = center right (row1,col3 in grace)
-    agr_content.append("@    string char size 1.25\n") # char size 1.25 = 125 (in grace)
+    agr_content.append(f"@    string color {glb_txt_color}\n") 
+    agr_content.append(f"@    string rot {glb_txt_rot}\n") 
+    agr_content.append(f"@    string font {glb_txt_font}\n")
+    if niso == 0: 
+      agr_content.append(f"@    string just {glb_cr_just}\n") 
+    else:  
+      agr_content.append(f"@    string just {glb_cl_just}\n") 
+    agr_content.append(f"@    string char size {glb_txt_size}\n") 
     if ex == 0:
       agr_content.append(f'@    string def "g.s."\n')
     else:  
@@ -75,11 +89,14 @@ def generator1(agr_content, niso, isotope, states, se):
       agr_content.append("@    string loctype world\n") # Local world (the other option is viewport)
       agr_content.append("@    string g0\n") # g0 is the current graph. (grace allow multiple graphs in the same canvas)
       agr_content.append(f"@    string {pos_jpi}, {ex}\n") # left at ex lines and same height(y-axis)
-      agr_content.append("@    string color 1\n") # color 1 = black
-      agr_content.append("@    string rot 0\n") # rot = rotation (unit: deg)
-      agr_content.append("@    string font 0\n") # font 0 = "Times-Romance"
-      agr_content.append("@    string just 13\n") # just 13 = center left (row3,col3 in grace)
-      agr_content.append("@    string char size 1.25\n") # char size 1.25 = 125 (in grace)
+      agr_content.append(f"@    string color {glb_txt_color}\n")
+      agr_content.append(f"@    string rot {glb_txt_rot}\n") 
+      agr_content.append(f"@    string font {glb_txt_font}\n") 
+      if niso == 0:
+        agr_content.append(f"@    string just {glb_cl_just}\n") 
+      else:
+        agr_content.append(f"@    string just {glb_cr_just}\n") 
+      agr_content.append(f"@    string char size {glb_txt_size}\n") 
       if states[1][idx] is not None:
         filling_str = states[1][idx]
         if states[2][idx] is not None:
@@ -92,7 +109,10 @@ def generator1(agr_content, niso, isotope, states, se):
   # 3. Separation Energies
   se_linex1 = linex1 - 0.1
   se_linex2 = linex2 + 0.1
-  pos_se = se_linex1 - 0.02
+  if niso == 0:
+    pos_se = se_linex1 - 0.02
+  else:
+    pos_se = se_linex2 + 0.02
   for idx in range(len(se[1])):
     se_val = int(se[1][idx])
     if se_val != 0:
@@ -117,11 +137,14 @@ def generator1(agr_content, niso, isotope, states, se):
       agr_content.append("@    string loctype world\n") # Local world (the other option is viewport)
       agr_content.append("@    string g0\n") # g0 is the current graph. (grace allow multiple graphs in the same canvas)
       agr_content.append(f"@    string {pos_se}, {se_val}\n") # left at se lines and same height(y-axis)
-      agr_content.append("@    string color 1\n") # color 1 = black
-      agr_content.append("@    string rot 0\n") # rot = rotation (unit: deg)
-      agr_content.append("@    string font 0\n") # font 0 = "Times-Romance"
-      agr_content.append("@    string just 13\n") # just 13 = center left (row3,col3 in grace)
-      agr_content.append("@    string char size 1.25\n") # char size 1.25 = 125 (in grace)
+      agr_content.append(f"@    string color {glb_txt_color}\n") 
+      agr_content.append(f"@    string rot {glb_txt_rot}\n") 
+      agr_content.append(f"@    string font {glb_txt_font}\n") 
+      if niso == 0:
+        agr_content.append(f"@    string just {glb_cl_just}\n") 
+      else:
+        agr_content.append(f"@    string just {glb_cr_just}\n") 
+      agr_content.append(f"@    string char size {glb_txt_size}\n") 
       agr_content.append(f'@    string def "{se[0][idx]} = {se_val} keV"\n')
       break 
 

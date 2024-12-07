@@ -12,6 +12,9 @@ def gframe(Nisotopes):
     case 1: # One istope
       axis_x1 = -0.5
       axis_x2 = 1.0
+    case 2: # Two istope
+      axis_x1 = -0.5
+      axis_x2 = 2.0
     case _: # default any other values, return empty array
       return agr_content 
  

@@ -27,7 +27,7 @@ def gInitialize():
   format_type = -1
   if agr_content:
     while format_type < 0:
-      format_type = int(input("Enter the formate # (default is 1): "))
+      format_type = int(input("Enter the format # (default is 1): "))
       if format_type != 1:
         print(f"Format{format_type} has not been ready yet. Try a differenty style\n")
       else:
