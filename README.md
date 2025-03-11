@@ -2,9 +2,8 @@
 
 GOAL: to create different types of level schemes based on input .txt files.
 
-## Python Library Required
-- `os` (part of Python's standard library, no need to install)
-- `datetime` (part of Python's standard library, no need to install)
+## Python Package Required
+- No extra package needs to install. 
 
 ## Grace File Generator
 All generator codes are written in python and saved in <u>build/agr_generator</u>.</br> 
