@@ -22,7 +22,11 @@ def complete_path(text, state):
 def enable_path_completion():
   readline.set_completer(complete_path)
   readline.set_completer_delims(' \t\n') # Allow file paths with '/'
-  readline.parse_and_bind("tab: complete")
+  # Detect if macOS is using libedit
+  if "libedit" in readline.__doc__:
+    readline.parse_and_bind("bind ^I rl_complete")  # MacOS (libedit) fix
+  else:
+    readline.parse_and_bind("tab: complete")  # Default GNU readline behavior
 
 # Function to sanitize file names
 def sanitize_title(title):
