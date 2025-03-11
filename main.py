@@ -11,6 +11,7 @@ from GEmptyFrame import *
 from GReadFile import *
 from GGenerator import *
 
+# TODO: file path completion doesn't work yet.
 # =============== Preparation ================ # 
 # Enable tab-completion for file paths
 def complete_path(text, state):
