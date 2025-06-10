@@ -50,7 +50,7 @@ def gInitialize():
 
   # Define valid Nisotopes range based on format_type
   valid_Nisotopes = {
-    1: {1, 2},  # Format 1 allows only 1 or 2 isotopes
+    1: {1, 2, 3},  # Format 1 allows only 1 or 2 isotopes
     2: set(range(1, 11))  # Format 2 allows 1 to 10 isotopes
   }
 
