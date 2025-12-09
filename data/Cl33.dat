@@ -1,0 +1,37 @@
+# ============= Format 1 ====================================== #
+# 
+# Each file only contain one isotope, 3 parts of info
+# Simplest information, only containing excitation energy
+# All energies are in "keV"
+# !!! No space for individual informtaion, eg, "291 fs" won't work
+  
+
+
+# ==== 1. Isotope Information (Rquired) ======================= #   
+Isotope: Cl
+Z = 17    
+N = 16    
+
+
+
+# ==== 2. States Information (Col "Ex" requires to be filled) = #
+Ex    Jpi  t1/2 
+0     3/2+ 2.5059s
+811   1/2+ 1250(240)fs
+1987  5/2+ 53(12)fs
+2352  3/2+ 69(21)fs
+2686  (5/2)- 9000(15)fs
+2839  5/2+ 3(1)fs
+2846  3/2- <=0.7fs
+2975  7/2+ 60(14)fs
+3816  5/2+ 
+3971  3/2+
+3979  5/2-
+states_end
+
+
+
+
+# ==== 3. Separation Energy (in keV) ========================== #
+Sp = 2277
+Sn = 0
