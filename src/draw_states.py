@@ -5,7 +5,7 @@
 
 # Geometry
 STATE_SOLID_LEN = 4.0
-BAND_GAP = 1.0
+BAND_GAP = 1.5
 
 # Energy -> y scaling (keV to Grace world y-unit)
 Y_SCALE = 1.0
@@ -21,11 +21,11 @@ DRAW_ENERGY_LABEL = True
 
 # Label offsets (in world units)
 # These are relative to the level y-position.
-JPI_DX = 0.10
-JPI_DY = 20.0
+JPI_DX = 0.50
+JPI_DY = 50.0
 
 ENERGY_DX = 0.10
-ENERGY_DY = 20.0
+ENERGY_DY = 50.0
 
 # Label font size (Grace char size)
 # Label just centered

@@ -19,7 +19,7 @@ from src.draw_states import StateLayout, STATE_LINECOLOR, LABEL_JUST
 # ----------------------------
 
 # C0) Fixed linewidth for ALL gamma lines
-GAMMA_LINEWIDTH = 2.0  # [EDIT L26]
+GAMMA_LINEWIDTH = 2.0  # [EDIT L22]
 GAMMA_LINESTYLE = 1
 GAMMA_LINECOLOR = STATE_LINECOLOR
 
@@ -29,16 +29,20 @@ Y_PAD = 14.0
 # C3 label placement
 DRAW_GAMMA_LABEL = True
 LABEL_CHAR_SIZE = 0.80
-LABEL_DX = 0.10
-LABEL_DY = 20.0
+LABEL_DX = 0.0
+LABEL_DY = 10.0
 
-# C2.4 dashed extension style for final state
-FINAL_EXT_LINESTYLE = 2
+# Final dashed extension for levels (C2.4)
+FINAL_EXT_LINESTYLE = 3
 FINAL_EXT_LINEWIDTH = 2.0
 FINAL_EXT_LINECOLOR = STATE_LINECOLOR
 
+# Small inward offset from level edge to avoid overlap with arrow/level
+# Unit: world x coordinate
+EDGE_EPS = 0.05
+
 # C2.2 slot step (world x units)
-SLOT_JITTER = 0.12
+SLOT_JITTER = 0.5
 
 # C2 fixed tilt angle (degrees)
 # If theta=30, tan(theta)=0.577..., dx = dy / tan(theta) gives a 60-degree-ish line in x-y.
@@ -65,6 +69,7 @@ class DataRange:
     self.update_point(x0, y0)
     self.update_point(x1, y1)
 
+
 def _agr_arrow_object(
   x0: float, y0: float, x1: float, y1: float,
   linewidth: float, linestyle: int, color: int
@@ -73,9 +78,9 @@ def _agr_arrow_object(
   Draw one LINE object with arrow head in world coordinates on g0.
   (Grace arrow style is controlled by 'line arrow' fields.)
   """
-  # [EDIT L1] Switch from '@with arrow' to '@with line' + arrow properties.
+  # [EDIT L80] Switch from '@with arrow' to '@with line' + arrow properties.
   lines: List[str] = []
-  lines.append("@with line")                              # [EDIT L3]
+  lines.append("@with line")                              # [EDIT L82]
   lines.append("@    line on")
   lines.append("@    line loctype world")
   lines.append("@    line g0")
@@ -84,12 +89,11 @@ def _agr_arrow_object(
   lines.append(f"@    line linestyle {linestyle}")
   lines.append(f"@    line color {color}")
 
-  # [EDIT L13-L17] Add arrow settings matching user's example.
-  # line arrow: 0 none, 1 start, 2 end, 3 both (Grace convention)
-  lines.append("@    line arrow 2")                       # arrow at end
-  lines.append("@    line arrow type 1")                  # type 1 (as in example)
-  lines.append("@    line arrow length 1.000000")         # size
-  lines.append("@    line arrow layout 1.000000, 0.000000")  # layout
+  # [EDIT L91-L97] Add arrow settings matching user's example.
+  lines.append("@    line arrow 2")
+  lines.append("@    line arrow type 1")
+  lines.append("@    line arrow length 1.000000")
+  lines.append("@    line arrow layout 1.000000, 0.000000")
 
   lines.append("@line def")
   return "\n".join(lines) + "\n"
@@ -111,7 +115,7 @@ def _agr_line_object(
   lines.append(f"@    line linewidth {linewidth:.3f}")
   lines.append(f"@    line linestyle {linestyle}")
   lines.append(f"@    line color {color}")
-  # [EDIT L??] Force arrow OFF to avoid inheriting arrow state from previous objects
+  # [EDIT L118] Force arrow OFF to avoid inheriting arrow state from previous objects
   lines.append("@    line arrow 0")
   lines.append("@    line arrow type 0")
   lines.append("@    line arrow length 0.000000")
@@ -132,17 +136,25 @@ def _agr_string(x: float, y: float, text: str, char_size: float = LABEL_CHAR_SIZ
   lines.append("@    string loctype world")
   lines.append("@    string g0")
   lines.append(f"@    string {x:.6f}, {y:.6f}")
-  lines.append(f"@    string just {LABEL_JUST}")
+  lines.append(f"@    string color {GAMMA_LINECOLOR}")
+  #lines.append(f"@    string font 0")
   lines.append(f"@    string char size {char_size:.3f}")
+  lines.append(f"@    string just {LABEL_JUST}")
   lines.append(f"@    string def \"{safe_text}\"")
   return "\n".join(lines) + "\n"
 
 
+def _cross_sign(sl_i: StateLayout, sl_f: StateLayout) -> int:
+  """
+  Decide cross-band direction.
+  If initial is to the LEFT of final -> left-top -> right-bottom -> +1
+  Else -> right-top -> left-bottom -> -1
+  """
+  return 1 if sl_i.xc < sl_f.xc else -1
+
+
 def _find_layout_by_band_energy(
-  state_layouts: List[StateLayout],
-  band: int,
-  energy_keV: float,
-  tol_keV: float = 1.0
+  state_layouts: List[StateLayout], band: int, energy_keV: float, tol_keV: float = 1.0
 ) -> Optional[StateLayout]:
   """
   Find a StateLayout by (band, energy) within tolerance.
@@ -159,89 +171,43 @@ def _find_layout_by_band_energy(
   return best
 
 
-def _slots_for_crossband(sl_i: StateLayout) -> List[float]:
-  """
-  Discrete slots in initial band's solid interval, skipping xc.
-  Example: [5,9], xc=7 => [5,6,8,9]
-  """
-  left = min(sl_i.x0, sl_i.x1)
-  right = max(sl_i.x0, sl_i.x1)
-  xc = sl_i.xc
-
-  start = int(math.ceil(left))
-  stop = int(math.floor(right))
-
-  slots: List[float] = []
-  for xi in range(start, stop + 1):
-    xf = float(xi)
-    if abs(xf - xc) < 1e-9:
-      continue
-    if xf < left - 1e-9 or xf > right + 1e-9:
-      continue
-    slots.append(xf)
-
-  if not slots:
-    for xf in [left, right]:
-      if abs(xf - xc) >= 1e-9:
-        slots.append(float(xf))
-
-  return slots
-
-
-def _cross_sign(sl_i: StateLayout, sl_f: StateLayout) -> float:
-  """
-  Determine cross-band direction:
-  - if initial state is left of final state: line goes left-top -> right-bottom => dx > 0
-  - if initial state is right of final state: line goes right-top -> left-bottom => dx < 0
-  """
-  # [EDIT L231-L243] New: decide direction by relative x
-  if sl_i.xc < sl_f.xc:
-    return +1.0
-  return -1.0
-
-
-def _assign_crossband_start_x(
+def _assign_crossband_jitter_index(
   resolved: List[Tuple[Transition, float, int, str]],
   state_layouts: List[StateLayout],
   tol_keV: float = 1.0
-) -> Dict[Tuple[int, float, float, int, float], float]:
+) -> Dict[Tuple[int, float, float, int, float], int]:
   """
-  Assign x_start slots for cross-band transitions to reduce overlap/crossing.
+  Assign a small integer jitter index for cross-band transitions from the same initial state.
 
-  Key:
-    (band_i, Ei_keV, Egamma_keV, band_f, Ef_keV) -> x_start
+  Scheme A:
+    - Start x is ALWAYS at the edge (left or right) decided by sign.
+    - slot/jitter is ONLY used to separate multiple cross-band gammas from the SAME initial state.
 
-  Strategy:
-    Group by SAME initial state (band_i, Ei), then sort by final state's xc.
-    Assign slots in that order so lines "fan out" consistently.
+  Returns:
+    (band_i, Ei_keV, Egamma_keV, band_f, Ef_keV) -> jitter_index (0,1,2,...)
   """
-  # [EDIT L258-L324] Improved slot assignment: sort by final xc to reduce crossings
+  # Group by initial state (band_i, Ei_keV)
   groups: Dict[Tuple[int, float], List[Tuple[Transition, StateLayout, StateLayout]]] = {}
-
   for t, ef_e, ef_b, _ef_j in resolved:
+    # only cross-band
+    if t.band == ef_b:
+      continue
     sl_i = _find_layout_by_band_energy(state_layouts, t.band, t.ei_keV, tol_keV=tol_keV)
     sl_f = _find_layout_by_band_energy(state_layouts, ef_b, ef_e, tol_keV=tol_keV)
     if sl_i is None or sl_f is None:
       continue
-    if sl_i.band == sl_f.band:
-      continue
-    key = (sl_i.band, sl_i.state.energy_keV)
-    groups.setdefault(key, []).append((t, sl_i, sl_f))
+    gk = (sl_i.band, sl_i.state.energy_keV)
+    groups.setdefault(gk, []).append((t, sl_i, sl_f))
 
-  out: Dict[Tuple[int, float, float, int, float], float] = {}
+  out: Dict[Tuple[int, float, float, int, float], int] = {}
   for (_bi, _ei), items in groups.items():
-    sl_i0 = items[0][1]
-    slots = _slots_for_crossband(sl_i0)
-
-    # Sort by final xc, then by Ef energy, then Egamma (deterministic)
+    # Deterministic ordering so jitter indices are stable
+    # Sort by final xc, then by Ef energy, then Egamma
     items_sorted = sorted(items, key=lambda x: (x[2].xc, x[2].state.energy_keV, x[0].egamma_keV))
 
     for idx, (t, sl_i, sl_f) in enumerate(items_sorted):
-      if idx < len(slots):
-        x_start = slots[idx]
-      else:
-        x_start = slots[-1] + SLOT_JITTER * (idx - len(slots) + 1)
-      out[(sl_i.band, sl_i.state.energy_keV, t.egamma_keV, sl_f.band, sl_f.state.energy_keV)] = x_start
+      key = (sl_i.band, sl_i.state.energy_keV, t.egamma_keV, sl_f.band, sl_f.state.energy_keV)
+      out[key] = idx
 
   return out
 
@@ -254,11 +220,11 @@ def build_transitions_block(
   tol_keV: float = 1.0
 ) -> Tuple[str, Tuple[float, float, float, float]]:
   """
-  Build gamma transitions as Grace objects (arrows), plus final dashed extensions (C2.4).
+  Build gamma transitions as Grace objects, plus final dashed extensions (C2.4).
 
   Returns:
     agr_block (str),
-    range (x_min, x_max, y_min, y_max) computed from ACTUAL drawn objects.
+    range (x_min, x_max, y_min, y_max) computed from the ACTUAL drawn objects.
   """
   if not resolved:
     return "", (0.0, 1.0, 0.0, 1.0)
@@ -266,9 +232,10 @@ def build_transitions_block(
   dr = DataRange()
   parts: List[str] = []
 
-  cross_x_map = _assign_crossband_start_x(resolved, state_layouts, tol_keV=tol_keV)
+  # Pre-assign cross-band jitter index (Scheme A)
+  cross_j_map = _assign_crossband_jitter_index(resolved, state_layouts, tol_keV=tol_keV)  # [EDIT L227] Scheme A
 
-  # final dashed extension: (band, energy) -> x_need (farthest)
+  # Track required dashed extension for final states: (band, energy_keV) -> x_need
   final_ext_need: Dict[Tuple[int, float], float] = {}
 
   for t, ef_e, ef_b, _ef_j in resolved:
@@ -277,16 +244,15 @@ def build_transitions_block(
     if sl_i is None or sl_f is None:
       continue
 
-    # world y from layouts
     y_i = sl_i.y
     y_f = sl_f.y
 
-    # enforce high -> low
+    # Ensure direction is high -> low
     if y_i < y_f:
       sl_i, sl_f = sl_f, sl_i
       y_i, y_f = y_f, y_i
 
-    # inside-band: vertical arrow at xc
+    # C1: inside-band (vertical at xc)
     if sl_i.band == sl_f.band:
       x = sl_i.xc
       x0, y0 = x, y_i - y_pad
@@ -305,65 +271,52 @@ def build_transitions_block(
       continue
 
     # cross-band
-    sign = _cross_sign(sl_i, sl_f)  # [EDIT L401] rule (1): decide left/right direction
+    sign = _cross_sign(sl_i, sl_f)  # [EDIT L266] decide left/right direction
 
     key = (sl_i.band, sl_i.state.energy_keV, t.egamma_keV, sl_f.band, sl_f.state.energy_keV)
     solid_left_i = min(sl_i.x0, sl_i.x1)
     solid_right_i = max(sl_i.x0, sl_i.x1)
 
-    # [EDIT L1] Choose start edge based on sign, and MIRROR slot when starting from right edge
-    slot = cross_x_map.get(key, None)
+    # Scheme A: start ALWAYS from the edge; jitter ONLY separates multiple cross-band from same initial state
+    j = cross_j_map.get(key, 0)  # [EDIT L273] jitter index (0,1,2,...)
 
     if sign > 0:
       # left-top -> right-bottom: start from RIGHT edge
-      # slot in cross_x_map was generated from LEFT-side integer positions,
-      # so we mirror it into the right side of [L, R].
-      if slot is None:
-        x_start = solid_right_i - 0.05
-      else:
-        slot_mirror = solid_right_i - (slot - solid_left_i)  # [EDIT L9]
-        x_start = slot_mirror - 0.05                         # [EDIT L10]
-      x_start = min(x_start, solid_right_i - 0.05)
-      x_start = max(x_start, solid_left_i + 0.05)
-
+      x_start = solid_right_i - EDGE_EPS - j * SLOT_JITTER  # [EDIT L277]
     else:
-      # right-top -> left-bottom: start from LEFT edge (use slot directly)
-      if slot is None:
-        x_start = solid_left_i + 0.05
-      else:
-        x_start = slot + 0.05
-      x_start = max(x_start, solid_left_i + 0.05)
-      x_start = min(x_start, solid_right_i - 0.05)
+      # right-top -> left-bottom: start from LEFT edge
+      x_start = solid_left_i + EDGE_EPS + j * SLOT_JITTER  # [EDIT L280]
+
+    # Clamp inside the solid interval (avoid sitting exactly on corners)
+    x_start = min(x_start, solid_right_i - EDGE_EPS)  # [EDIT L283]
+    x_start = max(x_start, solid_left_i + EDGE_EPS)  # [EDIT L284]
 
     x0, y0 = x_start, y_i - y_pad
 
-
-    # fixed angle: dx = dy / tan(theta)
-    # Use dy between endpoints so angle is constant regardless of absolute y.
-    y1 = y_f + y_pad
-    dy = (y0 - y1)  # positive number
+    dy = (y_i - y_f)
     dx = dy / CROSS_TAN
-    x1 = x0 + sign * dx  # [EDIT L414] rule (2): fixed angle with direction
+    x1 = x0 + sign * dx  # [EDIT L294] rule (2): fixed angle with direction
+    y1 = y_f + y_pad
 
     parts.append(_agr_arrow_object(x0, y0, x1, y1, GAMMA_LINEWIDTH, GAMMA_LINESTYLE, GAMMA_LINECOLOR))
     dr.update_segment(x0, y0, x1, y1)
 
-    # C2.4: extend final level dashed to reach x1 if needed
-    solid_left = min(sl_f.x0, sl_f.x1)
-    solid_right = max(sl_f.x0, sl_f.x1)
-    if x1 < solid_left - 1e-9 or x1 > solid_right + 1e-9:
+    # C2.4 dashed extension need for final state based on StateLayout solid interval
+    solid_left_f = min(sl_f.x0, sl_f.x1)
+    solid_right_f = max(sl_f.x0, sl_f.x1)
+
+    if x1 < solid_left_f - 1e-9 or x1 > solid_right_f + 1e-9:
       fkey = (sl_f.band, sl_f.state.energy_keV)
       prev = final_ext_need.get(fkey, None)
       if prev is None:
         final_ext_need[fkey] = x1
       else:
-        # keep farthest requirement
-        if x1 > solid_right:
+        if x1 > solid_right_f:
           final_ext_need[fkey] = max(prev, x1)
-        if x1 < solid_left:
+        if x1 < solid_left_f:
           final_ext_need[fkey] = min(prev, x1)
 
-    # label (C3)
+    # C3 label
     if draw_gamma_label:
       eg_txt = f"{t.egamma_keV:.0f}"
       xm = 0.5 * (x0 + x1) + LABEL_DX
@@ -371,7 +324,7 @@ def build_transitions_block(
       parts.append(_agr_string(xm, ym, eg_txt))
       dr.update_point(xm, ym)
 
-  # dashed extensions for final states
+  # Draw dashed extensions for final states (C2.4)
   for (b, e), x_need in final_ext_need.items():
     sl_f = _find_layout_by_band_energy(state_layouts, b, e, tol_keV=tol_keV)
     if sl_f is None:
